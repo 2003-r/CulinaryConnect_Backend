@@ -1,4 +1,5 @@
 const Recipe = require('../models/Recipe');
+const path = require('path');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 
@@ -61,6 +62,9 @@ exports.createRecipe = asyncHandler(async (req, res, next) => {
     });
 });
 
+// @desc    Update Recipe
+// @route   PUT /api/v1/Recipes/:id
+// @access  Private
 exports.updateRecipe = asyncHandler(async (req, res, next) => {
     const recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
@@ -95,6 +99,56 @@ exports.deleteRecipe = asyncHandler(async (req, res, next) => {
         success: true,
         data: {}
     });
+});
+
+// @desc    Upload photo for Recipe
+// @route   PUT /api/v1/recipes/:id/photo
+// @access  Private
+exports.RecipeUpload = asyncHandler(async (req, res, next) => {
+    console.log('Received request:', req.method, req.url);
+    console.log('Request files:', req.files); // Log the files received
+  
+    const recipe = await Recipe.findById(req.params.id);
+  
+    if (!recipe) {
+      return next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
+    }
+  
+    if (!req.files) {
+      return next(new ErrorResponse(`Please upload a file`, 400));
+    }
+  
+    const file = req.files.file;
+  
+    // Check if the file is an image
+    if (!file.mimetype.startsWith('image')) {
+      return next(new ErrorResponse(`Please upload an image file`, 400));
+    }
+
+    if(file.size > process.env.MAX_FILE_UPLOAD){
+        return next(new ErrorResponse(`Please upload an image less than ${process.env.MAX_FILE_UPLOAD}`), 400);
+    }
+
+    // Create custom filename 
+    file.name = `photo_${recipe._id}${path.parse(file.name).ext}`;
+
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+        if(err) {
+            console.error(err);
+            return next(
+                new ErrorResponse(`Problem with file upload`, 500)
+            )
+        }
+
+        await Recipe.findByIdAndUpdate(req.params.id, { photo: file.name });
+
+        res.status(200).json({
+            success: true,
+            data: file.name
+        });
+    });
+
+    console.log(file.name);
 });
 
 // Function to search recipes

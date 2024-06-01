@@ -4,10 +4,13 @@ const {
     getRecipe, 
     createRecipe,
     updateRecipe,
-    deleteRecipe
+    deleteRecipe,
+    RecipeUpload
 } = require('../controllers/recipes');
 
 const router = express.Router();
+
+router.route('/:id/photo').put(RecipeUpload);
 
 router.route('/').get(getRecipes).post(createRecipe);
 
