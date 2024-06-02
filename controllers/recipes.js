@@ -75,16 +75,21 @@ exports.createRecipe = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/Recipes/:id
 // @access  Private
 exports.updateRecipe = asyncHandler(async (req, res, next) => {
-    const recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
+    let recipe = await Recipe.findById(req.params.id);
+
+    if (!recipe) {
+        return next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
+    }
+
+    // Make sure user is Recipe owner
+    if (recipe.user.toString() !== req.user.id) {
+        return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this recipe`, 401));
+    }
+
+    recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
     });
-
-    if (!recipe) {
-        return next(
-            new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404)
-        );
-    }
 
     res.status(200).json({
         success: true,
@@ -92,23 +97,30 @@ exports.updateRecipe = asyncHandler(async (req, res, next) => {
     });
 });
 
+
 // @desc    Delete Recipe
 // @route   DELETE /api/v1/recipes/:id
 // @access  Private
 exports.deleteRecipe = asyncHandler(async (req, res, next) => {
-    const recipe = await Recipe.findByIdAndDelete(req.params.id);
+    const recipe = await Recipe.findById(req.params.id);
 
     if (!recipe) {
-        return next(
-            new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404)
-        );
+        return next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
     }
+
+    // Make sure user is Recipe owner
+    if (recipe.user.toString() !== req.user.id) {
+        return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete this recipe`, 401));
+    }
+
+    await Recipe.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
         success: true,
         data: {}
     });
 });
+
 
 // @desc    Upload photo for Recipe
 // @route   PUT /api/v1/recipes/:id/photo
@@ -122,6 +134,16 @@ exports.RecipeUpload = asyncHandler(async (req, res, next) => {
     if (!recipe) {
       return next(new ErrorResponse(`Recipe not found with id of ${req.params.id}`, 404));
     }
+
+    // Make sure user is Recipe owner
+    if (recipe.user.toString() !== req.user.id) {
+        return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this recipe`, 401));
+    }
+
+    recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    });
   
     if (!req.files) {
       return next(new ErrorResponse(`Please upload a file`, 400));

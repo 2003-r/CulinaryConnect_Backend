@@ -22,6 +22,7 @@ const app = express();
 
 // Body parser
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Cookie parser 
 app.use(cookieParser());
@@ -36,6 +37,12 @@ app.use(fileupload());
 
 // Set static folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Log incoming requests for debugging
+app.use((req, res, next) => {
+    console.log('Request body:', req.body);
+    next();
+});
 
 // Mount routers
 app.use('/api/v1/recipes', recipes);
