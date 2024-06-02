@@ -1,8 +1,8 @@
 const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
-const logger = require('./middleware/logger');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 const colors = require('colors');
 const errorHandler = require('./middleware/error');
@@ -16,26 +16,30 @@ connectDB();
 
 // Route Files
 const recipes = require('./routes/recipes');
+const auth = require('./routes/auth');
 
 const app = express();
 
 // Body parser
 app.use(express.json());
 
-app.use(express.json());
+// Cookie parser 
+app.use(cookieParser());
 
 // Dev logging middleware
-if(process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
+
 // File uploading 
 app.use(fileupload());
 
 // Set static folder
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Mount routers
 app.use('/api/v1/recipes', recipes);
+app.use('/api/v1/auth', auth);
 
 app.use(errorHandler);
 

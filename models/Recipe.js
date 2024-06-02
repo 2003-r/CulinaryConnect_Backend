@@ -40,6 +40,15 @@ const RecipeSchema = new mongoose.Schema({
         min: [1, 'Rating must be at least 1'],
         max: [10, 'Rating must cannot be more than 10']
     }, 
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    }, 
+    user: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User', // Reference to the User model
+        required: true
+    },
     photo: {
         type: String,
         default: 'no-photo.jpg'

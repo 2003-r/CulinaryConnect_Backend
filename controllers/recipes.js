@@ -52,15 +52,24 @@ exports.getRecipe = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Create new Recipe
-// @route   POST /api/v1/Recipes
+// @route   POST /api/v1/recipes
 // @access  Private
 exports.createRecipe = asyncHandler(async (req, res, next) => {
+    console.log('Creating a new recipe'); // Debugging log
+    console.log('Request body:', req.body); // Debugging log
+
+    // Add user to req.body
+    req.body.user = req.user.id;
+
     const recipe = await Recipe.create(req.body);
+
     res.status(201).json({
         success: true,
         data: recipe
     });
 });
+
+
 
 // @desc    Update Recipe
 // @route   PUT /api/v1/Recipes/:id
