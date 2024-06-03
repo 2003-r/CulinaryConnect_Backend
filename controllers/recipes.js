@@ -2,7 +2,6 @@ const Recipe = require('../models/Recipe');
 const path = require('path');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
-const mongooseFuzzySearching = require('mongoose-fuzzy-searching');
 
 // @desc    Get all Recipes
 // @route   GET /api/v1/recipes

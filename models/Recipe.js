@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const mongoose_fuzzy_searching = require('mongoose-fuzzy-searching');
 
 const RecipeSchema = new mongoose.Schema({
     name: {
@@ -60,7 +59,7 @@ const RecipeSchema = new mongoose.Schema({
 });
 
 // Enable fuzzy searching on the 'name' field
-RecipeSchema.plugin(mongoose_fuzzy_searching, { fields: ['name', 'ingredients', 'category'] });
+RecipeSchema.index({ fields: ['name', 'ingredients', 'category'] });
 
 // Create Recipe slug from the name
 RecipeSchema.pre('save', function(next){
