@@ -17,6 +17,7 @@ connectDB();
 // Route Files
 const recipes = require('./routes/recipes');
 const auth = require('./routes/auth');
+const like = require('./routes/like');
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use((req, res, next) => {
 // Mount routers
 app.use('/api/v1/recipes', recipes);
 app.use('/api/v1/auth', auth);
+app.use('/api/v1/like', like);
 
 app.use(errorHandler);
 
