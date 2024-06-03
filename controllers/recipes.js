@@ -37,6 +37,7 @@ exports.getRecipes = asyncHandler( async (req, res, next) => {
 // @route   GET /api/v1/recipes/:id
 // @access  Public
 exports.getRecipe = asyncHandler(async (req, res, next) => {
+    console.log(req.params.id);
     const recipe = await Recipe.findById(req.params.id);
 
     if (!recipe) {
@@ -78,7 +79,7 @@ exports.advancedSearchRecipes = asyncHandler(async (req, res, next) => {
 });
 
 
-// @desc    Create new Recipe
+// @desc    Create new Recipe with photo
 // @route   POST /api/v1/recipes
 // @access  Private
 exports.createRecipe = asyncHandler(async (req, res, next) => {
@@ -88,11 +89,42 @@ exports.createRecipe = asyncHandler(async (req, res, next) => {
     // Add user to req.body
     req.body.user = req.user.id;
 
-    const recipe = await Recipe.create(req.body);
+    // Check if files are included in the request
+    if (!req.files || !req.files.file) {
+        return next(new ErrorResponse(`Please upload a file`, 400));
+    }
 
-    res.status(201).json({
-        success: true,
-        data: recipe
+    const file = req.files.file;
+
+    // Check if the file is an image
+    if (!file.mimetype.startsWith('image')) {
+        return next(new ErrorResponse(`Please upload an image file`, 400));
+    }
+
+    if (file.size > process.env.MAX_FILE_UPLOAD) {
+        return next(new ErrorResponse(`Please upload an image less than ${process.env.MAX_FILE_UPLOAD}`), 400);
+    }
+
+    // Create custom filename 
+    file.name = `photo_${Date.now()}${path.parse(file.name).ext}`;
+
+    // Move the file to the upload directory
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+        if (err) {
+            console.error(err);
+            return next(new ErrorResponse(`Problem with file upload`, 500));
+        }
+
+        // Create the recipe with the uploaded photo
+        const recipe = await Recipe.create({
+            ...req.body,
+            photo: file.name
+        });
+
+        res.status(201).json({
+            success: true,
+            data: recipe
+        });
     });
 });
 
@@ -167,12 +199,14 @@ exports.RecipeUpload = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this recipe`, 401));
     }
 
-    recipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
+    let updatedRecipe; // Changed the variable name
+
+    updatedRecipe = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
     });
   
-    if (!req.files) {
+    if (!req.files || !req.files.file) {
       return next(new ErrorResponse(`Please upload a file`, 400));
     }
   

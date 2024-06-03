@@ -1,6 +1,25 @@
 const Recipe = require('../models/Recipe');
 const asyncHandler = require('../middleware/async');
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Recipe:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         likes:
+ *           type: integer
+ *         likedBy:
+ *           type: array
+ *           items:
+ *             type: string
+ */
+
 // @desc    Get top liked recipes
 // @route   GET /api/v1/like/topliked
 // @access  Public
