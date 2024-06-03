@@ -2,9 +2,10 @@ const Recipe = require('../models/Recipe');
 const path = require('path');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
+const mongooseFuzzySearching = require('mongoose-fuzzy-searching');
 
 // @desc    Get all Recipes
-// @route   GET /api/v1/Recipes
+// @route   GET /api/v1/recipes
 // @access  Public
 exports.getRecipes = asyncHandler( async (req, res, next) => {
     // Check if a search query parameter is provided
@@ -34,7 +35,7 @@ exports.getRecipes = asyncHandler( async (req, res, next) => {
 });
 
 // @desc    Get Single Recipe
-// @route   GET /api/v1/Recipes/:id
+// @route   GET /api/v1/recipes/:id
 // @access  Public
 exports.getRecipe = asyncHandler(async (req, res, next) => {
     const recipe = await Recipe.findById(req.params.id);
@@ -50,6 +51,33 @@ exports.getRecipe = asyncHandler(async (req, res, next) => {
         data: recipe
     });
 });
+
+// @desc    Search recipes using advanced fuzzy search
+// @route   GET /api/v1/recipes/advanced-search
+// @access  Public
+exports.advancedSearchRecipes = asyncHandler(async (req, res, next) => {
+    const { query } = req.query;
+    const regex = new RegExp(query, 'i'); // 'i' for case-insensitive
+
+    const recipes = await Recipe.aggregate([
+        {
+            $match: {
+                $or: [
+                    { name: { $regex: regex } },
+                    { description: { $regex: regex } },
+                    { ingredients: { $regex: regex } }
+                ]
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        success: true,
+        count: recipes.length,
+        data: recipes
+    });
+});
+
 
 // @desc    Create new Recipe
 // @route   POST /api/v1/recipes
@@ -72,7 +100,7 @@ exports.createRecipe = asyncHandler(async (req, res, next) => {
 
 
 // @desc    Update Recipe
-// @route   PUT /api/v1/Recipes/:id
+// @route   PUT /api/v1/recipes/:id
 // @access  Private
 exports.updateRecipe = asyncHandler(async (req, res, next) => {
     let recipe = await Recipe.findById(req.params.id);
