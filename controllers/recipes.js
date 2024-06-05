@@ -52,6 +52,32 @@ exports.getRecipe = asyncHandler(async (req, res, next) => {
     });
 });
 
+// @desc    Get Recipe created by user
+// @route   GET /api/v1/recipes/user
+// @access  Private
+exports.getUserRecipe = asyncHandler(async (req, res, next) => {
+    const userId = req.user.id;
+
+    if (!userId) {
+        return next(
+            new ErrorResponse(`User id not found in the request`, 404)
+        );
+    }
+
+    const recipes = await Recipe.find({ user: userId });
+    if (!recipes || recipes.length === 0) {
+        return next(
+            new ErrorResponse(`Recipes not found for user with id ${userId}`, 404)
+        );
+    }
+
+    res.status(200).json({
+        success: true,
+        count: recipes.length,
+        data: recipes
+    });
+});
+
 // @desc    Search recipes using advanced fuzzy search
 // @route   GET /api/v1/recipes/advanced-search
 // @access  Public

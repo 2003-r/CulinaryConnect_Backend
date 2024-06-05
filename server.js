@@ -12,6 +12,7 @@ const connectDB = require('./config/db');
 const colors = require('colors');
 const errorHandler = require('./middleware/error');
 const fileupload = require('express-fileupload');
+const cors = require('cors');
 
 // Load env vars
 dotenv.config({ path: './config/config.env' });
@@ -72,6 +73,14 @@ app.use(helmet());
 
 // Prevent XSS attacks
 app.use(xss());
+
+const corsOptions = {
+    origin: 'http://localhost:3000', // replace with your frontend URL
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  };
+app.use(cors(corsOptions));
 
 // // Rate limiting
 // const limiter = rateLimit({

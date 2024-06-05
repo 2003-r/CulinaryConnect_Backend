@@ -1,7 +1,9 @@
 const express = require('express');
+const cors = require('cors');
 const {
     getRecipes,
     getRecipe,
+    getUserRecipe,
     createRecipe,
     updateRecipe,
     deleteRecipe,
@@ -11,6 +13,11 @@ const {
 
 const router = express.Router();
 const { protect } = require('../middleware/auth');
+
+const corsOptions = {
+    origin: 'https://www.nileshblog.tech/',
+    optionsSuccessStatus: 200,
+  };
 
 /**
  * @swagger
@@ -22,8 +29,21 @@ const { protect } = require('../middleware/auth');
  *       '200':
  *         description: A list of recipes.
  */
-router.get('/advancesearchrecipes', advancedSearchRecipes);
+router.get('/advancesearchrecipes',cors(corsOptions), advancedSearchRecipes);
 
+/**
+ * @swagger
+ * /api/v1/recipes/user:
+ *   get:
+ *     summary: Get recipes for the authenticated user
+ *     description: Retrieve recipes for the authenticated user.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: A list of recipes for the authenticated user.
+ */
+router.get('/user' ,protect , cors(corsOptions) , getUserRecipe);
 /**
  * @swagger
  * /api/v1/recipes/{id}/photo:
@@ -46,7 +66,7 @@ router.get('/advancesearchrecipes', advancedSearchRecipes);
  *       '200':
  *         description: Recipe photo uploaded successfully.
  */
-router.route('/:id/photo').put(protect, RecipeUpload);
+router.route('/:id/photo').put(protect, cors(corsOptions), RecipeUpload);
 
 /**
  * @swagger
@@ -96,8 +116,8 @@ router.route('/:id/photo').put(protect, RecipeUpload);
  *      in: header
  *      description: "Enter your bearer token in the format **Bearer &lt;token>**"
  */
-router.route('/').get(getRecipes);
-router.post('/', protect, createRecipe); 
+router.route('/').get(cors(corsOptions), getRecipes);
+router.post('/', protect, cors(corsOptions), createRecipe); 
 
 /**
  * @swagger
@@ -142,6 +162,6 @@ router.post('/', protect, createRecipe);
  *       '200':
  *         description: Recipe deleted successfully.
  */
-router.route('/:id').get(getRecipe).put(protect, updateRecipe).delete(protect, deleteRecipe);
+router.route('/:id').get(cors(corsOptions), getRecipe).put(protect, cors(corsOptions), updateRecipe).delete(protect, cors(corsOptions), deleteRecipe);
 
 module.exports = router;

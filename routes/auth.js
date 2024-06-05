@@ -1,9 +1,24 @@
 const express = require('express');
-const { register, login, logout, getMe, forgotpassword, resetPassword, updateDetails, updatePassword } = require('../controllers/auth');
+const cors = require('cors');
+const {
+    register,
+    login,
+    logout,
+    getMe,
+    forgotpassword,
+    resetPassword,
+    updateDetails,
+    updatePassword
+} = require('../controllers/auth');
 const { protect } = require('../middleware/auth');
-
 const router = express.Router();
 
+const corsOptions = {
+    origin: 'http://localhost:3000', // replace with your frontend URL
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  };
 // routes/auth.js
 
 /**
@@ -31,7 +46,7 @@ const router = express.Router();
  *       400:
  *         description: Bad request
  */
-router.post('/register', register);
+router.post('/register', cors(corsOptions), register);
 
 /**
  * @swagger
@@ -56,7 +71,7 @@ router.post('/register', register);
  *       401:
  *         description: Unauthorized
  */
-router.post('/login', login);
+router.post('/login', cors(corsOptions), login);
 
 /**
  * @swagger
@@ -68,7 +83,7 @@ router.post('/login', login);
  *       200:
  *         description: User logged out successfully
  */
-router.get('/logout', logout);
+router.get('/logout', cors(corsOptions), logout);
 
 /**
  * @swagger
@@ -84,7 +99,7 @@ router.get('/logout', logout);
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', protect, getMe);
+router.get('/me', protect, cors(corsOptions), getMe);
 
 /**
  * @swagger
@@ -107,7 +122,7 @@ router.get('/me', protect, getMe);
  *       400:
  *         description: Bad request
  */
-router.post('/forgotpassword', forgotpassword);
+router.post('/forgotpassword', cors(corsOptions), forgotpassword);
 
 /**
  * @swagger
@@ -137,7 +152,7 @@ router.post('/forgotpassword', forgotpassword);
  *       400:
  *         description: Bad request
  */
-router.put('/resetpassword/:resettoken', resetPassword);
+router.put('/resetpassword/:resettoken', cors(corsOptions), resetPassword);
 
 /**
  * @swagger
@@ -166,7 +181,7 @@ router.put('/resetpassword/:resettoken', resetPassword);
  *       401:
  *         description: Unauthorized
  */
-router.put('/updatedetails', protect, updateDetails);
+router.put('/updatedetails', protect, cors(corsOptions), updateDetails);
 
 /**
  * @swagger
@@ -195,6 +210,6 @@ router.put('/updatedetails', protect, updateDetails);
  *       401:
  *         description: Unauthorized
  */
-router.put('/updatepassword', protect, updatePassword);
+router.put('/updatepassword', protect, cors(corsOptions), updatePassword);
 
 module.exports = router;

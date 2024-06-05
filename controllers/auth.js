@@ -84,7 +84,12 @@ const sendTokenResponse = (user, statusCode, res) => {
         .cookie('token', token, options)
         .json({
             success: true,
-            token
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
         });
 };
 
@@ -124,7 +129,7 @@ exports.forgotpassword = asyncHandler(async (req, res, next) => {
     await user.save({ validateBeforeSave: false});
 
     // Create reset URL
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${resetToken}`;
+    const resetUrl = `http://localhost:3000/resetpassword/${resetToken}`;
     
     const message = `You are recieving this email because you (or someone else) has requested the reset of a password. please make a PUT request to: \n\n ${resetUrl}`;
 
@@ -201,10 +206,11 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
 
     console.log("Updated user:", user); // Debugging line
 
-    res.status(200).json({
-        success: true,
-        data: user
-    });
+    // res.status(200).json({
+    //     success: true,
+    //     data: user
+    // });
+    sendTokenResponse(user, 200, res);
 });
 
 

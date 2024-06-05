@@ -7,6 +7,12 @@ const {
 } = require('../controllers/like');
 const { protect } = require('../middleware/auth');
 const router = express.Router();
+const cors = require('cors');
+
+const corsOptions = {
+    origin: 'https://www.nileshblog.tech/',
+    optionsSuccessStatus: 200,
+};
 
 /**
  * @swagger
@@ -31,7 +37,7 @@ const router = express.Router();
  *                   items:
  *                     $ref: '#/components/schemas/Recipe'
  */
-router.get('/topliked', getTopLikedRecipes);
+router.get('/topliked', cors(corsOptions), getTopLikedRecipes);
 
 /**
  * @swagger
@@ -58,7 +64,7 @@ router.get('/topliked', getTopLikedRecipes);
  *                   items:
  *                     $ref: '#/components/schemas/Recipe'
  */
-router.get('/liked', protect, getLikedRecipes);
+router.get('/liked', protect, cors(corsOptions), getLikedRecipes);
 
 /**
  * @swagger
@@ -88,7 +94,7 @@ router.get('/liked', protect, getLikedRecipes);
  *                 data:
  *                   $ref: '#/components/schemas/Recipe'
  */
-router.put('/:id/like', protect, likeRecipe);
+router.put('/:id/like', protect, cors(corsOptions), likeRecipe);
 
 /**
  * @swagger
@@ -118,6 +124,6 @@ router.put('/:id/like', protect, likeRecipe);
  *                 data:
  *                   $ref: '#/components/schemas/Recipe'
  */
-router.put('/:id/unlike', protect, unlikeRecipe);
+router.put('/:id/unlike', protect, cors(corsOptions), unlikeRecipe);
 
 module.exports = router;
