@@ -6,28 +6,26 @@ const asyncHandler = require('../middleware/async');
 // @desc    Get all Recipes
 // @route   GET /api/v1/recipes
 // @access  Public
-exports.getRecipes = asyncHandler( async (req, res, next) => {
+exports.getRecipes = asyncHandler(async (req, res, next) => {
     // Check if a search query parameter is provided
     const query = req.query.q;
 
     if (!query) {
         // If no search query is provided, retrieve all recipes
         const recipes = await Recipe.find();
-        res
-            .status(200)
-            .json({
-                success: true,
-                count: recipes.length,
-                data: recipes
+        return res.status(200).json({
+            success: true,
+            count: recipes.length,
+            data: recipes
         });
     }
 
     // If a search query is provided, perform search
     const matchingRecipes = await searchRecipes(query);
     return res.status(200).json({
-        success: true, 
-        count: matchingRecipes.length, 
-        data: matchingRecipes 
+        success: true,
+        count: matchingRecipes.length,
+        data: matchingRecipes
     });
     
 
@@ -51,6 +49,21 @@ exports.getRecipe = asyncHandler(async (req, res, next) => {
         data: recipe
     });
 });
+
+// @desc    Get newest Recipes
+// @route   GET /api/v1/recipes/new
+// @access  Public
+exports.getNewRecipes = asyncHandler(async (req, res, next) => {
+    // Retrieve the 10 most recent recipes
+    const recipes = await Recipe.find().sort({ createdAt: -1 }).limit(10);
+
+    res.status(200).json({
+        success: true,
+        count: recipes.length,
+        data: recipes
+    });
+});
+
 
 // @desc    Get Recipe created by user
 // @route   GET /api/v1/recipes/user
@@ -78,10 +91,10 @@ exports.getUserRecipe = asyncHandler(async (req, res, next) => {
     });
 });
 
-// @desc    Search recipes using advanced fuzzy search
-// @route   GET /api/v1/recipes/advanced-search
+// @desc    Search recipes using search
+// @route   GET /api/v1/recipes/search
 // @access  Public
-exports.advancedSearchRecipes = asyncHandler(async (req, res, next) => {
+exports.SearchRecipes = asyncHandler(async (req, res, next) => {
     const { query } = req.query;
     const regex = new RegExp(query, 'i'); // 'i' for case-insensitive
 

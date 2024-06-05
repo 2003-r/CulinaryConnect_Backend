@@ -3,12 +3,13 @@ const cors = require('cors');
 const {
     getRecipes,
     getRecipe,
+    getNewRecipes,
     getUserRecipe,
     createRecipe,
     updateRecipe,
     deleteRecipe,
     RecipeUpload,
-    advancedSearchRecipes
+    SearchRecipes
 } = require('../controllers/recipes');
 
 const router = express.Router();
@@ -21,7 +22,7 @@ const corsOptions = {
 
 /**
  * @swagger
- * /api/v1/recipes:
+ * /api/v1/recipes/search:
  *   get:
  *     summary: Get all recipes
  *     description: Retrieve a list of all recipes.
@@ -29,7 +30,7 @@ const corsOptions = {
  *       '200':
  *         description: A list of recipes.
  */
-router.get('/advancesearchrecipes',cors(corsOptions), advancedSearchRecipes);
+router.get('/search',cors(corsOptions), SearchRecipes);
 
 /**
  * @swagger
@@ -44,6 +45,21 @@ router.get('/advancesearchrecipes',cors(corsOptions), advancedSearchRecipes);
  *         description: A list of recipes for the authenticated user.
  */
 router.get('/user' ,protect , cors(corsOptions) , getUserRecipe);
+
+/**
+ * @swagger
+ * /api/v1/recipes:
+ *   get:
+ *     summary: Get recipes for the authenticated user
+ *     description: Retrieve recipes for the authenticated user.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: A list of recipes for the authenticated user.
+ */
+router.get('/new' ,protect , cors(corsOptions) , getNewRecipes);
+
 /**
  * @swagger
  * /api/v1/recipes/{id}/photo:
