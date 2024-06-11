@@ -5,6 +5,7 @@ const {
     getRecipe,
     getNewRecipes,
     getUserRecipe,
+    getTopLikedRecipes,
     createRecipe,
     updateRecipe,
     deleteRecipe,
@@ -15,10 +16,13 @@ const {
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 
+// CORS configuration
 const corsOptions = {
-    origin: 'https://www.nileshblog.tech/',
-    optionsSuccessStatus: 200,
-  };
+  origin: 'http://localhost:3000', // Change this to match your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+};
 
 /**
  * @swagger
@@ -48,7 +52,7 @@ router.get('/user' ,protect , cors(corsOptions) , getUserRecipe);
 
 /**
  * @swagger
- * /api/v1/recipes:
+ * /api/v1/recipes/new:
  *   get:
  *     summary: Get recipes for the authenticated user
  *     description: Retrieve recipes for the authenticated user.
@@ -59,6 +63,20 @@ router.get('/user' ,protect , cors(corsOptions) , getUserRecipe);
  *         description: A list of recipes for the authenticated user.
  */
 router.get('/new' ,protect , cors(corsOptions) , getNewRecipes);
+
+/**
+ * @swagger
+ * /api/v1/recipes/topliked:
+ *   get:
+ *     summary: Get recipes for the authenticated user
+ *     description: Retrieve recipes for the authenticated user.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: A list of recipes for the authenticated user.
+ */
+router.get('/topliked' ,protect , cors(corsOptions) , getTopLikedRecipes);
 
 /**
  * @swagger

@@ -36,7 +36,8 @@ exports.getRecipes = asyncHandler(async (req, res, next) => {
 // @access  Public
 exports.getRecipe = asyncHandler(async (req, res, next) => {
     console.log(req.params.id);
-    const recipe = await Recipe.findById(req.params.id);
+    const { id } = req.params;
+    const recipe = await Recipe.findById(id).populate('user', 'name');;
 
     if (!recipe) {
         return next(
@@ -91,6 +92,21 @@ exports.getUserRecipe = asyncHandler(async (req, res, next) => {
     });
 });
 
+// @desc    Get top liked recipes
+// @route   GET /api/v1/recipe/topliked
+// @access  Public
+exports.getTopLikedRecipes = asyncHandler(async (req, res, next) => {
+    // Get the Recipes and sorting them in descending order
+    const recipes = await Recipe.find().sort({likes: -1}).limit(10);
+
+    res.status(200).json({
+        success: true,
+        count: recipes.length,
+        data: recipes
+    });
+});
+
+
 // @desc    Search recipes using search
 // @route   GET /api/v1/recipes/search
 // @access  Public
@@ -122,11 +138,17 @@ exports.SearchRecipes = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/recipes
 // @access  Private
 exports.createRecipe = asyncHandler(async (req, res, next) => {
-    console.log('Creating a new recipe'); // Debugging log
-    console.log('Request body:', req.body); // Debugging log
+    console.log('Creating a new recipe');
 
     // Add user to req.body
     req.body.user = req.user.id;
+
+    // Parse ingredients from req.body
+    const ingredients = [];
+    for (let i = 0; req.body[`ingredients[${i}]`]; i++) {
+        ingredients.push(req.body[`ingredients[${i}]`]);
+    }
+    req.body.ingredients = ingredients;
 
     // Check if files are included in the request
     if (!req.files || !req.files.file) {
@@ -144,29 +166,20 @@ exports.createRecipe = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`Please upload an image less than ${process.env.MAX_FILE_UPLOAD}`), 400);
     }
 
-    // Create custom filename 
-    file.name = `photo_${Date.now()}${path.parse(file.name).ext}`;
+    // Read the file data
+    const fileData = file.data;
 
-    // Move the file to the upload directory
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
-        if (err) {
-            console.error(err);
-            return next(new ErrorResponse(`Problem with file upload`, 500));
-        }
+    // Create the recipe with the uploaded photo data
+    const recipe = await Recipe.create({
+        ...req.body,
+        photo: fileData // Save the file data to the 'photo' field
+    });
 
-        // Create the recipe with the uploaded photo
-        const recipe = await Recipe.create({
-            ...req.body,
-            photo: file.name
-        });
-
-        res.status(201).json({
-            success: true,
-            data: recipe
-        });
+    res.status(201).json({
+        success: true,
+        data: recipe
     });
 });
-
 
 
 // @desc    Update Recipe

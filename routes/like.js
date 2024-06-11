@@ -10,34 +10,11 @@ const router = express.Router();
 const cors = require('cors');
 
 const corsOptions = {
-    origin: 'https://www.nileshblog.tech/',
-    optionsSuccessStatus: 200,
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+    optionsSuccessStatus: 200
 };
-
-/**
- * @swagger
- * /like/topliked:
- *   get:
- *     summary: Get top liked recipes
- *     description: Retrieve a list of the top 10 liked recipes.
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 count:
- *                   type: integer
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Recipe'
- */
-router.get('/topliked', cors(corsOptions), getTopLikedRecipes);
 
 /**
  * @swagger

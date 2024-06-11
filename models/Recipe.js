@@ -31,7 +31,7 @@ const RecipeSchema = new mongoose.Schema({
         required: true,
         enum: [
             'Appetizer',
-            'Main-course',
+            'Main Course',
             'Dessert'
         ]
     }, 
@@ -53,7 +53,7 @@ const RecipeSchema = new mongoose.Schema({
         required: true
     },
     photo: {
-        type: String,
+        type: Buffer,
         default: 'no-photo.jpg'
     }
 });
