@@ -25,7 +25,7 @@ const asyncHandler = require('../middleware/async');
 // @access  Public
 exports.getTopLikedRecipes = asyncHandler(async (req, res, next) => {
     // Get the Recipes and sorting them in descending order
-    const recipes = await Recipe.find().sort({likes: -1}).limit(10);
+    const recipes = await Recipe.find().sort({likes: -1}).limit(9);
 
     res.status(200).json({
         success: true,

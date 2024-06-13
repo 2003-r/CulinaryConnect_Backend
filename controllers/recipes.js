@@ -56,7 +56,7 @@ exports.getRecipe = asyncHandler(async (req, res, next) => {
 // @access  Public
 exports.getNewRecipes = asyncHandler(async (req, res, next) => {
     // Retrieve the 10 most recent recipes
-    const recipes = await Recipe.find().sort({ createdAt: -1 }).limit(10);
+    const recipes = await Recipe.find().sort({ createdAt: -1 }).limit(12);
 
     res.status(200).json({
         success: true,
@@ -97,7 +97,7 @@ exports.getUserRecipe = asyncHandler(async (req, res, next) => {
 // @access  Public
 exports.getTopLikedRecipes = asyncHandler(async (req, res, next) => {
     // Get the Recipes and sorting them in descending order
-    const recipes = await Recipe.find().sort({likes: -1}).limit(10);
+    const recipes = await Recipe.find().sort({likes: -1}).limit(12);
 
     res.status(200).json({
         success: true,
@@ -110,21 +110,22 @@ exports.getTopLikedRecipes = asyncHandler(async (req, res, next) => {
 // @desc    Search recipes using search
 // @route   GET /api/v1/recipes/search
 // @access  Public
-exports.SearchRecipes = asyncHandler(async (req, res, next) => {
-    const { query } = req.query;
-    const regex = new RegExp(query, 'i'); // 'i' for case-insensitive
+exports.searchRecipe = asyncHandler(async (req, res, next) => {
+    const { q: search } = req.query;
 
-    const recipes = await Recipe.aggregate([
-        {
-            $match: {
-                $or: [
-                    { name: { $regex: regex } },
-                    { description: { $regex: regex } },
-                    { ingredients: { $regex: regex } }
-                ]
-            }
-        }
-    ]);
+    if (!search) {
+        return res.status(400).json({ success: false, error: 'Search query is required' });
+    }
+
+    // Use case-insensitive regex to match the name or ingredients
+    const query = {
+        $or: [
+            { name: { $regex: new RegExp(search, 'i') } },
+            { ingredients: { $regex: new RegExp(search, 'i') } }
+        ]
+    };
+
+    const recipes = await Recipe.find(query);
 
     res.status(200).json({
         success: true,

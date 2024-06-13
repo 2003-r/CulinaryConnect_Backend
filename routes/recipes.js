@@ -10,7 +10,7 @@ const {
     updateRecipe,
     deleteRecipe,
     RecipeUpload,
-    SearchRecipes
+    searchRecipe
 } = require('../controllers/recipes');
 
 const router = express.Router();
@@ -30,11 +30,17 @@ const corsOptions = {
  *   get:
  *     summary: Get all recipes
  *     description: Retrieve a list of all recipes.
+ *     parameters:
+ *         name: q
+ *         schema:          
+ *         type: string        
+ *         required: true        
+ *         description: The search query string.
  *     responses:
  *       '200':
  *         description: A list of recipes.
  */
-router.get('/search',cors(corsOptions), SearchRecipes);
+router.get('/search',cors(corsOptions), searchRecipe);
 
 /**
  * @swagger
